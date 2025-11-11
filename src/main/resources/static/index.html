@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Smart ATS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* --- 1. Global Styles & Variables --- */
+:root {
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-sidebar: #111827;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-light: #f9fafb;
+  --accent-primary: #3b82f6;
+  --accent-hover: #2563eb;
+  --border-color: #e5e7eb;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  --border-radius: 0.5rem;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* --- 2. Layout --- */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: 100vh;
+}
+
+.sidebar {
+  background-color: var(--bg-sidebar);
+  color: var(--text-light);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.main-content {
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+header {
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #374151;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* --- 3. Sidebar Components --- */
+.sidebar-section {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-section summary {
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s;
+  list-style: none; /* Hide default marker */
+  position: relative;
+  padding-left: 2rem;
+}
+
+.sidebar-section summary::-webkit-details-marker { display: none; }
+
+.sidebar-section summary::before {
+  content: '▸';
+  position: absolute;
+  left: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.sidebar-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.sidebar-section summary:hover {
+  background-color: #374151;
+}
+
+.sidebar-form {
+  padding: 1rem 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* --- 4. Main Content & Pipeline --- */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.main-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.stage-column {
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border-top: 4px solid;
+}
+
+.stage-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.stage-header .count {
+    background-color: var(--border-color);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 12px;
+}
+
+.stage-content {
+  padding: 1rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Stage Colors */
+#col-APPLIED { border-color: #60a5fa; }
+#col-SCREENING { border-color: #fbbf24; }
+#col-INTERVIEW { border-color: #a78bfa; }
+#col-OFFER { border-color: #4ade80; }
+#col-ONBOARDING { border-color: #2dd4bf; }
+#col-REJECTED { border-color: #f87171; }
+
+
+/* --- 5. Generic Components (Cards, Forms, Buttons) --- */
+.card {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  background-color: #374151;
+  color: var(--text-light);
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.main-content input, .main-content select {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+button {
+  padding: 0.6rem 1rem;
+  border: none;
+  background: var(--accent-primary);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+}
+
+.pill {
+  background: #374151;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  margin: 2px;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.applicant-item {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  cursor: grab;
+  transition: box-shadow 0.2s;
+}
+.applicant-item:hover {
+    box-shadow: var(--shadow);
+}
+
+.applicant-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.applicant-item small {
+    color: var(--text-secondary);
+}
+
+.item-list {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* --- 6. Responsive Design --- */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    height: auto;
+  }
+  .main-content {
+    height: auto;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <header><h1>Smart ATS</h1></header>
+    
+    <details class="sidebar-section" open>
+      <summary>Create Job</summary>
+      <div class="sidebar-form">
+        <input id="job_title" placeholder="Job Title"/>
+        <input id="job_loc" placeholder="Location"/>
+        <input id="job_min" type="number" placeholder="Min Exp"/>
+        <input id="job_max" type="number" placeholder="Max Exp"/>
+        <input id="job_skills" placeholder="Skills (comma)"/>
+        <textarea id="job_desc" placeholder="Description" rows="3"></textarea>
+        <button onclick="createJob()">Create Job</button>
+      </div>
+    </details>
+
+    <details class="sidebar-section">
+      <summary>Create Candidate</summary>
+      <div class="sidebar-form">
+        <input id="cand_name" placeholder="Name"/>
+        <input id="cand_email" placeholder="Email"/>
+        <input id="cand_phone" placeholder="Phone"/>
+        <input id="cand_exp" type="number" placeholder="Total Experience"/>
+        <input id="cand_skills" placeholder="Skills (comma)"/>
+        <input id="cand_loc" placeholder="Current Location"/>
+        <button onclick="createCandidate()">Create Candidate</button>
+      </div>
+    </details>
+
+    <details class="sidebar-section">
+      <summary>Manage Application</summary>
+      <div class="sidebar-form">
+          <b>Apply Candidate to Job</b>
+          <select id="apply_job"></select>
+          <select id="apply_cand"></select>
+          <button onclick="apply()">Apply</button>
+          
+          <b style="margin-top:1rem;">Move Application Stage</b>
+          <input id="move_id" placeholder="Application ID"/>
+          <select id="move_stage">
+            <option>SCREENING</option>
+            <option>INTERVIEW</option>
+            <option>OFFER</option>
+            <option>ONBOARDING</option>
+            <option>REJECTED</option>
+          </select>
+          <button onclick="move()">Move Stage</button>
+      </div>
+    </details>
+    
+    <div class="item-list" id="jobs"></div>
+    <div class="item-list" id="cands"></div>
+    
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <h2>Recruitment Pipeline</h2>
+      <select id="pipe_job" onchange="loadPipeline()"></select>
+    </div>
+
+    <div class="pipeline-grid">
+      <div id="col-APPLIED" class="stage-column"><div class="stage-header">Applied<span class="count" id="count-APPLIED">0</span></div><div class="stage-content" id="APPLIED"></div></div>
+      <div id="col-SCREENING" class="stage-column"><div class="stage-header">Screening<span class="count" id="count-SCREENING">0</span></div><div class="stage-content" id="SCREENING"></div></div>
+      <div id="col-INTERVIEW" class="stage-column"><div class="stage-header">Interview<span class="count" id="count-INTERVIEW">0</span></div><div class="stage-content" id="INTERVIEW"></div></div>
+      <div id="col-OFFER" class="stage-column"><div class="stage-header">Offer<span class="count" id="count-OFFER">0</span></div><div class="stage-content" id="OFFER"></div></div>
+      <div id="col-ONBOARDING" class="stage-column"><div class="stage-header">Onboarding<span class="count" id="count-ONBOARDING">0</span></div><div class="stage-content" id="ONBOARDING"></div></div>
+      <div id="col-REJECTED" class="stage-column"><div class="stage-header">Rejected<span class="count" id="count-REJECTED">0</span></div><div class="stage-content" id="REJECTED"></div></div>
+    </div>
+  </main>
+</div>
+
+
+<script>
+// --- No changes needed for the Javascript logic ---
+const API = "http://localhost:8082";
+const STAGES = ["APPLIED","SCREENING","INTERVIEW","OFFER","ONBOARDING","REJECTED"];
+
+function val(id){return document.getElementById(id).value.trim();}
+function csv(id){return val(id).split(",").map(s=>s.trim()).filter(Boolean);}
+
+async function createJob(){
+ await post("/api/jobs",{title:val("job_title"),location:val("job_loc"),minExp:+val("job_min"),maxExp:+val("job_max"),skills:csv("job_skills"),description:val("job_desc")});
+ loadJobs(); refreshJobSelects();
+}
+
+async function createCandidate(){
+ await post("/api/candidates",{name:val("cand_name"),email:val("cand_email"),phone:val("cand_phone"),totalExp:+val("cand_exp"),skills:csv("cand_skills"),currentLocation:val("cand_loc")});
+ loadCandidates(); refreshCandSelects();
+}
+
+async function apply(){
+ await post("/api/applications",{jobId:+val("apply_job"),candidateId:+val("apply_cand")});
+ loadPipeline();
+}
+
+async function move(){
+ await post(`/api/applications/${val("move_id")}/move`,{stage:val("move_stage"),note:""});
+ loadPipeline();
+}
+
+async function loadJobs(){
+ let list=await get("/api/jobs"), box=document.getElementById("jobs"); box.innerHTML="<h3>Jobs</h3>";
+ list.forEach(j=>box.innerHTML+=`<div class="applicant-item" style="background: #1f2937;"><strong>#${j.id}: ${j.title}</strong><small>${j.location}</small></div>`);
+}
+
+async function loadCandidates(){
+ let list=await get("/api/candidates"), box=document.getElementById("cands"); box.innerHTML="<h3>Candidates</h3>";
+ list.forEach(c=>box.innerHTML+=`<div class="applicant-item" style="background: #1f2937;"><strong>#${c.id}: ${c.name}</strong><div>${c.skills.map(s=>`<span class='pill'>${s}</span>`).join("")}</div></div>`);
+}
+
+async function refreshJobSelects(){
+ let list=await get("/api/jobs"), s1=document.getElementById("apply_job"), s2=document.getElementById("pipe_job");
+ s1.innerHTML=""; s2.innerHTML="";
+ list.forEach(j=>{s1.innerHTML+=`<option value=${j.id}>#${j.id} ${j.title}</option>`; s2.innerHTML+=`<option value=${j.id}>#${j.id} ${j.title}</option>`});
+ loadPipeline();
+}
+
+async function refreshCandSelects(){
+ let list=await get("/api/candidates"), s=document.getElementById("apply_cand");
+ s.innerHTML="";
+ list.forEach(c=>{s.innerHTML+=`<option value=${c.id}>#${c.id} ${c.name}</option>`});
+}
+
+async function loadPipeline(){
+ let id=document.getElementById("pipe_job").value;
+ if (!id) return;
+ 
+ STAGES.forEach(s => {
+    document.getElementById(s).innerHTML="";
+    document.getElementById(`count-${s}`).textContent = "0";
+ });
+
+ let list=await get(`/api/applications/job/${id}`);
+ list.forEach(a=>{
+   document.getElementById(a.stage).innerHTML+=`<div class="applicant-item">
+     <strong>#${a.id} • Candidate ${a.candidateId}</strong>
+     <small>Match Score: ${a.score}%</small>
+   </div>`;
+ });
+
+ // Update counts
+ STAGES.forEach(s => {
+    const count = document.getElementById(s).childElementCount;
+    document.getElementById(`count-${s}`).textContent = count;
+ });
+}
+
+async function get(url){let r=await fetch(API+url);return r.json();}
+async function post(url,body){let r=await fetch(API+url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});return r.json().catch(()=>({}))}
+
+(async()=>{
+  await Promise.all([loadJobs(), loadCandidates(), refreshJobSelects(), refreshCandSelects()]);
+})();
+</script>
+</body>
+</html>
